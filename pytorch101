@@ -1,1 +1,564 @@
-{"metadata":{"kernelspec":{"language":"python","display_name":"Python 3","name":"python3"},"language_info":{"pygments_lexer":"ipython3","nbconvert_exporter":"python","version":"3.6.4","file_extension":".py","codemirror_mode":{"name":"ipython","version":3},"name":"python","mimetype":"text/x-python"},"kaggle":{"accelerator":"none","dataSources":[],"isInternetEnabled":true,"language":"python","sourceType":"notebook","isGpuEnabled":false}},"nbformat_minor":4,"nbformat":4,"cells":[{"cell_type":"code","source":"# This Python 3 environment comes with many helpful analytics libraries installed\n# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n# For example, here's several helpful packages to load\n\nimport numpy as np # linear algebra\nimport pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n\n# Input data files are available in the read-only \"../input/\" directory\n# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n\nimport os\nfor dirname, _, filenames in os.walk('/kaggle/input'):\n    for filename in filenames:\n        print(os.path.join(dirname, filename))\n\n# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session","metadata":{"_uuid":"8f2839f25d086af736a60e9eeb907d3b93b6e0e5","_cell_guid":"b1076dfc-b9ad-4769-8c92-a6c4dae69d19","trusted":true},"execution_count":null,"outputs":[]}]}
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "705a50a3",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:34.393052Z",
+     "iopub.status.busy": "2024-05-10T08:56:34.392594Z",
+     "iopub.status.idle": "2024-05-10T08:56:35.508889Z",
+     "shell.execute_reply": "2024-05-10T08:56:35.507579Z"
+    },
+    "papermill": {
+     "duration": 1.127639,
+     "end_time": "2024-05-10T08:56:35.512110",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:34.384471",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "94cac215",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:35.527891Z",
+     "iopub.status.busy": "2024-05-10T08:56:35.527320Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.819185Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.817692Z"
+    },
+    "papermill": {
+     "duration": 4.303068,
+     "end_time": "2024-05-10T08:56:39.822099",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:35.519031",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import torch"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "c7037fe9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:39.836882Z",
+     "iopub.status.busy": "2024-05-10T08:56:39.836289Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.845223Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.844005Z"
+    },
+    "papermill": {
+     "duration": 0.019654,
+     "end_time": "2024-05-10T08:56:39.847979",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.828325",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'2.1.2+cpu'"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "torch.__version__"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "54af774f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:39.862902Z",
+     "iopub.status.busy": "2024-05-10T08:56:39.862496Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.870391Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.868974Z"
+    },
+    "papermill": {
+     "duration": 0.018767,
+     "end_time": "2024-05-10T08:56:39.873053",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.854286",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "False"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "torch.cuda.is_available()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "c8b2984b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:39.887687Z",
+     "iopub.status.busy": "2024-05-10T08:56:39.887242Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.893125Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.891252Z"
+    },
+    "papermill": {
+     "duration": 0.016511,
+     "end_time": "2024-05-10T08:56:39.895913",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.879402",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# torch.cuda.current_device()\n",
+    "#torch.cuda.memory_allocated()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "68fd3f60",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:39.911326Z",
+     "iopub.status.busy": "2024-05-10T08:56:39.910915Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.916282Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.914884Z"
+    },
+    "papermill": {
+     "duration": 0.01616,
+     "end_time": "2024-05-10T08:56:39.918817",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.902657",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "arr=np.array([1,2,3,4])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "4d05d851",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:39.934729Z",
+     "iopub.status.busy": "2024-05-10T08:56:39.934297Z",
+     "iopub.status.idle": "2024-05-10T08:56:39.985984Z",
+     "shell.execute_reply": "2024-05-10T08:56:39.984628Z"
+    },
+    "papermill": {
+     "duration": 0.06241,
+     "end_time": "2024-05-10T08:56:39.988589",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.926179",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor([1, 2, 3, 4])"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tensors=torch.from_numpy(arr)\n",
+    "tensors"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "fb7a6639",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.003529Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.003073Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.025223Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.023439Z"
+    },
+    "papermill": {
+     "duration": 0.033347,
+     "end_time": "2024-05-10T08:56:40.028439",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:39.995092",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1, 5, 3, 4])"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tensors[1]=5\n",
+    "arr"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "b209bf0b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.045172Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.044647Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.064608Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.063322Z"
+    },
+    "papermill": {
+     "duration": 0.032435,
+     "end_time": "2024-05-10T08:56:40.067559",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.035124",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(array([1, 5, 3, 4]), tensor([1, 2, 3, 4]))"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tensors=torch.tensor(arr)\n",
+    "tensors[1]=2\n",
+    "arr,tensors"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "b1edd9f3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.083173Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.082778Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.099140Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.097716Z"
+    },
+    "papermill": {
+     "duration": 0.02783,
+     "end_time": "2024-05-10T08:56:40.102453",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.074623",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor([[0, 0],\n",
+       "        [0, 0]], dtype=torch.int32)"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "torch.zeros(2,2,dtype=torch.int)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "39868c33",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.118155Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.117728Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.124759Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.123463Z"
+    },
+    "papermill": {
+     "duration": 0.018605,
+     "end_time": "2024-05-10T08:56:40.127875",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.109270",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "t1=torch.tensor([1,2,3])\n",
+    "t2=torch.tensor([1,2,3,4])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "66764b37",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.152972Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.152487Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.179060Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.177704Z"
+    },
+    "papermill": {
+     "duration": 0.042321,
+     "end_time": "2024-05-10T08:56:40.181644",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.139323",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor([2, 4, 6])"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "t1+t2[:3]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "9c57ea53",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.201731Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.201256Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.214956Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.213782Z"
+    },
+    "papermill": {
+     "duration": 0.027249,
+     "end_time": "2024-05-10T08:56:40.218795",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.191546",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor(12)"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "torch.add(t1,t2[:3]).sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "b9775a53",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.237294Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.236888Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.241670Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.240367Z"
+    },
+    "papermill": {
+     "duration": 0.017407,
+     "end_time": "2024-05-10T08:56:40.244604",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.227197",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "t3=t2.reshape(2,2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "74e95a4e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-10T08:56:40.266436Z",
+     "iopub.status.busy": "2024-05-10T08:56:40.265693Z",
+     "iopub.status.idle": "2024-05-10T08:56:40.278786Z",
+     "shell.execute_reply": "2024-05-10T08:56:40.277429Z"
+    },
+    "papermill": {
+     "duration": 0.026452,
+     "end_time": "2024-05-10T08:56:40.281870",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.255418",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor([ 1,  2, 10,  4])"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "t3[1][0]=10\n",
+    "t2\n",
+    "# matmul,mm,@"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d6aa6bb2",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010311,
+     "end_time": "2024-05-10T08:56:40.303258",
+     "exception": false,
+     "start_time": "2024-05-10T08:56:40.292947",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [],
+   "dockerImageVersionId": 30698,
+   "isGpuEnabled": false,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 10.186852,
+   "end_time": "2024-05-10T08:56:41.341977",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-05-10T08:56:31.155125",
+   "version": "2.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
